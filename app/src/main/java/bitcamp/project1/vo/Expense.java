@@ -3,7 +3,7 @@ package bitcamp.project1.vo;
 import java.time.LocalDate;
 
 public class Expense {
-    public enum Category { HOUSING, COMMUNICATION, TRANSPORTATION, FINANCE, FOOD, HOBBY }
+    public enum Category { 주거, 통신, 교통, 금융, 식비, 취미 }
 
     private LocalDate date;
     private int amount;

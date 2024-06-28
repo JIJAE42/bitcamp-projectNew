@@ -16,9 +16,6 @@ public class IncomeCommand {
             case "목록":
                 this.listIncomes();
                 break;
-            case "조회":
-                this.viewIncome();
-                break;
             case "변경":
                 this.updateIncome();
                 break;
@@ -41,27 +38,16 @@ public class IncomeCommand {
     }
 
     private void listIncomes() {
-        for (Income income : accountBook.getIncomes()) {
-            System.out.printf("%s, %,d원, %s, %s\n",
-                    income.getDate(), income.getAmount(), income.getSource(), income.getDescription());
-        }
-    }
-
-    private void viewIncome() {
-        int index = Prompt.inputInt("조회할 소득 번호: ");
-        if (index >= 0 && index < accountBook.getIncomes().size()) {
-            Income income = accountBook.getIncomes().get(index);
-            System.out.printf("날짜: %s\n", income.getDate());
-            System.out.printf("금액: %,d원\n", income.getAmount());
-            System.out.printf("출처: %s\n", income.getSource());
-            System.out.printf("설명: %s\n", income.getDescription());
-        } else {
-            System.out.println("유효하지 않은 번호입니다.");
+        System.out.println("번호, 날짜, 금액, 출처, 설명");
+        for (int i = 0; i < accountBook.getIncomes().size(); i++) {
+            Income income = accountBook.getIncomes().get(i);
+            System.out.printf("%d. %s, %,d원, %s, %s\n",
+                    i + 1, income.getDate(), income.getAmount(), income.getSource(), income.getDescription());
         }
     }
 
     private void updateIncome() {
-        int index = Prompt.inputInt("변경할 소득 번호: ");
+        int index = Prompt.inputInt("변경할 소득 번호: ") - 1 ;
         if (index >= 0 && index < accountBook.getIncomes().size()) {
             Income income = accountBook.getIncomes().get(index);
             income.setDate(LocalDate.parse(Prompt.inputString(String.format("날짜(%s): ", income.getDate()))));
@@ -75,7 +61,7 @@ public class IncomeCommand {
     }
 
     private void deleteIncome() {
-        int index = Prompt.inputInt("삭제할 소득 번호: ");
+        int index = Prompt.inputInt("삭제할 소득 번호: ") - 1 ;
         if (index >= 0 && index < accountBook.getIncomes().size()) {
             accountBook.getIncomes().remove(index);
             System.out.println("소득이 삭제되었습니다.");

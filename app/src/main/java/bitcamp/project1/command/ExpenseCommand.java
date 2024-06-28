@@ -16,9 +16,6 @@ public class ExpenseCommand {
             case "목록":
                 this.listExpenses();
                 break;
-            case "조회":
-                this.viewExpense();
-                break;
             case "변경":
                 this.updateExpense();
                 break;
@@ -41,27 +38,16 @@ public class ExpenseCommand {
     }
 
     private void listExpenses() {
-        for (Expense expense : accountBook.getExpenses()) {
-            System.out.printf("%s, %,d원, %s, %s\n",
-                    expense.getDate(), expense.getAmount(), expense.getCategory(), expense.getDescription());
-        }
-    }
-
-    private void viewExpense() {
-        int index = Prompt.inputInt("조회할 지출 번호: ");
-        if (index >= 0 && index < accountBook.getExpenses().size()) {
-            Expense expense = accountBook.getExpenses().get(index);
-            System.out.printf("날짜: %s\n", expense.getDate());
-            System.out.printf("금액: %,d원\n", expense.getAmount());
-            System.out.printf("카테고리: %s\n", expense.getCategory());
-            System.out.printf("설명: %s\n", expense.getDescription());
-        } else {
-            System.out.println("유효하지 않은 번호입니다.");
+        System.out.println("번호, 날짜, 금액, 분류, 설명");
+        for (int i = 0; i < accountBook.getExpenses().size(); i++) {
+            Expense expense = accountBook.getExpenses().get(i);
+            System.out.printf("%d. %s, %,d원, %s, %s\n",
+                    i + 1, expense.getDate(), expense.getAmount(), expense.getCategory(), expense.getDescription());
         }
     }
 
     private void updateExpense() {
-        int index = Prompt.inputInt("변경할 지출 번호: ");
+        int index = Prompt.inputInt("변경할 지출 번호: ") - 1 ;
         if (index >= 0 && index < accountBook.getExpenses().size()) {
             Expense expense = accountBook.getExpenses().get(index);
             expense.setDate(LocalDate.parse(Prompt.inputString(String.format("날짜(%s): ", expense.getDate()))));
@@ -75,7 +61,7 @@ public class ExpenseCommand {
     }
 
     private void deleteExpense() {
-        int index = Prompt.inputInt("삭제할 지출 번호: ");
+        int index = Prompt.inputInt("삭제할 지출 번호: ") - 1 ;
         if (index >= 0 && index < accountBook.getExpenses().size()) {
             accountBook.getExpenses().remove(index);
             System.out.println("지출이 삭제되었습니다.");
@@ -95,17 +81,17 @@ public class ExpenseCommand {
         int categoryChoice = Prompt.inputInt("카테고리를 선택하세요: ");
         switch (categoryChoice) {
             case 1:
-                return Expense.Category.HOUSING;
+                return Expense.Category.주거;
             case 2:
-                return Expense.Category.COMMUNICATION;
+                return Expense.Category.통신;
             case 3:
-                return Expense.Category.TRANSPORTATION;
+                return Expense.Category.교통;
             case 4:
-                return Expense.Category.FINANCE;
+                return Expense.Category.금융;
             case 5:
-                return Expense.Category.FOOD;
+                return Expense.Category.식비;
             case 6:
-                return Expense.Category.HOBBY;
+                return Expense.Category.취미;
             default:
                 System.out.println("유효한 선택이 아닙니다.");
                 return null;

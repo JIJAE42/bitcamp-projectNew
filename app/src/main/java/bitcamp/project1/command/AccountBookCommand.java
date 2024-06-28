@@ -42,17 +42,17 @@ public class AccountBookCommand {
         int categoryChoice = Prompt.inputInt("카테고리를 선택하세요: ");
         switch (categoryChoice) {
             case 1:
-                return Expense.Category.HOUSING;
+                return Expense.Category.주거;
             case 2:
-                return Expense.Category.COMMUNICATION;
+                return Expense.Category.통신;
             case 3:
-                return Expense.Category.TRANSPORTATION;
+                return Expense.Category.교통;
             case 4:
-                return Expense.Category.FINANCE;
+                return Expense.Category.금융;
             case 5:
-                return Expense.Category.FOOD;
+                return Expense.Category.식비;
             case 6:
-                return Expense.Category.HOBBY;
+                return Expense.Category.취미;
             default:
                 System.out.println("유효한 선택이 아닙니다.");
                 return null;
@@ -67,7 +67,7 @@ public class AccountBookCommand {
 
         List<Expense> filteredExpenses = expenseList.stream()
                 .filter(expense -> expense.getCategory() == category)
-                .collect(Collectors.toList());
+                .toList();
 
         for (Expense expense : filteredExpenses) {
             System.out.printf("%s, %,d원, %s\n",
@@ -79,7 +79,7 @@ public class AccountBookCommand {
         LocalDate date = Prompt.inputDate("조회할 날짜 (YYYY-MM-DD): ");
         List<Expense> filteredExpenses = expenseList.stream()
                 .filter(expense -> expense.getDate().equals(date))
-                .collect(Collectors.toList());
+                .toList();
 
         for (Expense expense : filteredExpenses) {
             System.out.printf("%s, %,d원, %s\n",
@@ -91,7 +91,7 @@ public class AccountBookCommand {
         YearMonth month = YearMonth.parse(Prompt.inputString("조회할 월 (YYYY-MM): "));
         List<Expense> filteredExpenses = expenseList.stream()
                 .filter(expense -> YearMonth.from(expense.getDate()).equals(month))
-                .collect(Collectors.toList());
+                .toList();
 
         for (Expense expense : filteredExpenses) {
             System.out.printf("%s, %,d원, %s\n",
@@ -103,7 +103,7 @@ public class AccountBookCommand {
         int year = Prompt.inputInt("조회할 연도 (YYYY): ");
         List<Expense> filteredExpenses = expenseList.stream()
                 .filter(expense -> expense.getDate().getYear() == year)
-                .collect(Collectors.toList());
+                .toList();
 
         for (Expense expense : filteredExpenses) {
             System.out.printf("%s, %,d원, %s\n",

@@ -9,8 +9,8 @@ public class App {
 
     String[] mainMenus = {"소득", "지출", "지출 관리", "거래 내역 조회", "종료"};
     String[][] subMenus = {
-            {"등록", "목록", "조회", "변경", "삭제"},
-            {"등록", "목록", "조회", "변경", "삭제"},
+            {"등록", "목록", "변경", "삭제"},
+            {"등록", "목록", "변경", "삭제"},
             {"용도별 조회", "일별 조회", "월별 조회", "연도별 조회"}
     };
 
@@ -53,7 +53,7 @@ public class App {
 
     void printMenu() {
         System.out.println("---------------");
-        System.out.println("[가계부 관리 시스템]");
+        System.out.println("[가계부]");
         for (int i = 0; i < mainMenus.length; i++) {
             System.out.printf("%d. %s\n", (i + 1), mainMenus[i]);
         }
