@@ -5,42 +5,37 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Prompt {
-
     private static Scanner scanner = new Scanner(System.in);
 
-    public static String input(String prompt) {
-        System.out.print(prompt);
+    public static String inputString(String title) {
+        System.out.print(title);
         return scanner.nextLine();
     }
 
-    public static String inputString(String prompt) {
-        return input(prompt);
-    }
-
-    public static int inputInt(String prompt) {
+    public static int inputInt(String title) {
         while (true) {
             try {
-                return Integer.parseInt(input(prompt));
+                return Integer.parseInt(inputString(title));
             } catch (NumberFormatException e) {
-                System.out.println("유효한 숫자가 아닙니다. 다시 입력하세요.");
+                System.out.println("유효한 숫자를 입력하세요.");
             }
         }
     }
 
-    public static long inputLong(String prompt) {
+    public static long inputLong(String title) {
         while (true) {
             try {
-                return Long.parseLong(input(prompt));
+                return Long.parseLong(inputString(title));
             } catch (NumberFormatException e) {
-                System.out.println("유효한 숫자가 아닙니다. 다시 입력하세요.");
+                System.out.println("유효한 숫자를 입력하세요.");
             }
         }
     }
 
-    public static LocalDate inputDate(String prompt) {
+    public static LocalDate inputDate(String title) {
         while (true) {
             try {
-                return LocalDate.parse(input(prompt));
+                return LocalDate.parse(inputString(title));
             } catch (DateTimeParseException e) {
                 System.out.println("유효한 날짜 형식이 아닙니다. 다시 입력하세요 (YYYY-MM-DD).");
             }

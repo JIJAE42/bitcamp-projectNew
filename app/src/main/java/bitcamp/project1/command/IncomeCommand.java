@@ -1,13 +1,12 @@
 package bitcamp.project1.command;
 
+import bitcamp.project1.vo.AccountBook;
 import bitcamp.project1.vo.Income;
 import bitcamp.project1.util.Prompt;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class IncomeCommand {
-
-    private ArrayList<Income> incomeList = new ArrayList<>();
+    private AccountBook accountBook = new AccountBook();
 
     public void executeIncomeCommand(String subMenuTitle) {
         switch (subMenuTitle) {
@@ -31,60 +30,57 @@ public class IncomeCommand {
         }
     }
 
-    public void addIncome() {
-        LocalDate date = Prompt.inputDate("날짜 입력 (YYYY-MM-DD): ");
-        long amount = Prompt.inputLong("금액 입력: ");
-        String description = Prompt.inputString("설명 입력: ");
-        incomeList.add(new Income(date, amount, description));
+    private void addIncome() {
+        Income income = new Income();
+        income.setDate(LocalDate.parse(Prompt.inputString("날짜 (YYYY-MM-DD): ")));
+        income.setAmount(Prompt.inputInt("금액: "));
+        income.setSource(Prompt.inputString("출처: "));
+        income.setDescription(Prompt.inputString("설명: "));
+        accountBook.getIncomes().add(income);
         System.out.println("소득이 등록되었습니다.");
     }
 
-    public void listIncomes() {
-        for (Income income : incomeList) {
-            System.out.printf("%s - %,d원 - %s\n", income.getDate(), income.getAmount(), income.getDescription());
+    private void listIncomes() {
+        for (Income income : accountBook.getIncomes()) {
+            System.out.printf("%s, %,d원, %s, %s\n",
+                    income.getDate(), income.getAmount(), income.getSource(), income.getDescription());
         }
     }
 
-    public void viewIncome() {
+    private void viewIncome() {
         int index = Prompt.inputInt("조회할 소득 번호: ");
-        if (index < 0 || index >= incomeList.size()) {
-            System.out.println("유효한 소득 번호가 아닙니다.");
-            return;
+        if (index >= 0 && index < accountBook.getIncomes().size()) {
+            Income income = accountBook.getIncomes().get(index);
+            System.out.printf("날짜: %s\n", income.getDate());
+            System.out.printf("금액: %,d원\n", income.getAmount());
+            System.out.printf("출처: %s\n", income.getSource());
+            System.out.printf("설명: %s\n", income.getDescription());
+        } else {
+            System.out.println("유효하지 않은 번호입니다.");
         }
-
-        Income income = incomeList.get(index);
-        System.out.printf("날짜: %s\n", income.getDate());
-        System.out.printf("금액: %,d원\n", income.getAmount());
-        System.out.printf("설명: %s\n", income.getDescription());
     }
 
-    public void updateIncome() {
+    private void updateIncome() {
         int index = Prompt.inputInt("변경할 소득 번호: ");
-        if (index < 0 || index >= incomeList.size()) {
-            System.out.println("유효한 소득 번호가 아닙니다.");
-            return;
+        if (index >= 0 && index < accountBook.getIncomes().size()) {
+            Income income = accountBook.getIncomes().get(index);
+            income.setDate(LocalDate.parse(Prompt.inputString(String.format("날짜(%s): ", income.getDate()))));
+            income.setAmount(Prompt.inputInt(String.format("금액(%d): ", income.getAmount())));
+            income.setSource(Prompt.inputString(String.format("출처(%s): ", income.getSource())));
+            income.setDescription(Prompt.inputString(String.format("설명(%s): ", income.getDescription())));
+            System.out.println("소득이 변경되었습니다.");
+        } else {
+            System.out.println("유효하지 않은 번호입니다.");
         }
-
-        Income income = incomeList.get(index);
-        LocalDate date = Prompt.inputDate(String.format("날짜(%s): ", income.getDate()));
-        long amount = Prompt.inputLong(String.format("금액(%,d원): ", income.getAmount()));
-        String description = Prompt.inputString(String.format("설명(%s): ", income.getDescription()));
-
-        income.setDate(date);
-        income.setAmount(amount);
-        income.setDescription(description);
-
-        System.out.println("소득이 변경되었습니다.");
     }
 
-    public void deleteIncome() {
+    private void deleteIncome() {
         int index = Prompt.inputInt("삭제할 소득 번호: ");
-        if (index < 0 || index >= incomeList.size()) {
-            System.out.println("유효한 소득 번호가 아닙니다.");
-            return;
+        if (index >= 0 && index < accountBook.getIncomes().size()) {
+            accountBook.getIncomes().remove(index);
+            System.out.println("소득이 삭제되었습니다.");
+        } else {
+            System.out.println("유효하지 않은 번호입니다.");
         }
-
-        incomeList.remove(index);
-        System.out.println("소득이 삭제되었습니다.");
     }
 }

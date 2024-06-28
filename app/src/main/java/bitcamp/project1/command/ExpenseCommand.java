@@ -1,13 +1,12 @@
 package bitcamp.project1.command;
 
+import bitcamp.project1.vo.AccountBook;
 import bitcamp.project1.vo.Expense;
 import bitcamp.project1.util.Prompt;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class ExpenseCommand {
-
-    private ArrayList<Expense> expenseList = new ArrayList<>();
+    private AccountBook accountBook = new AccountBook();
 
     public void executeExpenseCommand(String subMenuTitle) {
         switch (subMenuTitle) {
@@ -31,17 +30,61 @@ public class ExpenseCommand {
         }
     }
 
-    public void addExpense() {
-        LocalDate date = Prompt.inputDate("날짜 입력 (YYYY-MM-DD): ");
-        long amount = Prompt.inputLong("금액 입력: ");
-        String description = Prompt.inputString("설명 입력: ");
-        Expense.Category category = selectCategory();
-        expenseList.add(new Expense(date, amount, description, category));
+    private void addExpense() {
+        Expense expense = new Expense();
+        expense.setDate(LocalDate.parse(Prompt.inputString("날짜 (YYYY-MM-DD): ")));
+        expense.setAmount(Prompt.inputInt("금액: "));
+        expense.setCategory(selectCategory());
+        expense.setDescription(Prompt.inputString("설명: "));
+        accountBook.getExpenses().add(expense);
         System.out.println("지출이 등록되었습니다.");
     }
 
+    private void listExpenses() {
+        for (Expense expense : accountBook.getExpenses()) {
+            System.out.printf("%s, %,d원, %s, %s\n",
+                    expense.getDate(), expense.getAmount(), expense.getCategory(), expense.getDescription());
+        }
+    }
+
+    private void viewExpense() {
+        int index = Prompt.inputInt("조회할 지출 번호: ");
+        if (index >= 0 && index < accountBook.getExpenses().size()) {
+            Expense expense = accountBook.getExpenses().get(index);
+            System.out.printf("날짜: %s\n", expense.getDate());
+            System.out.printf("금액: %,d원\n", expense.getAmount());
+            System.out.printf("카테고리: %s\n", expense.getCategory());
+            System.out.printf("설명: %s\n", expense.getDescription());
+        } else {
+            System.out.println("유효하지 않은 번호입니다.");
+        }
+    }
+
+    private void updateExpense() {
+        int index = Prompt.inputInt("변경할 지출 번호: ");
+        if (index >= 0 && index < accountBook.getExpenses().size()) {
+            Expense expense = accountBook.getExpenses().get(index);
+            expense.setDate(LocalDate.parse(Prompt.inputString(String.format("날짜(%s): ", expense.getDate()))));
+            expense.setAmount(Prompt.inputInt(String.format("금액(%d): ", expense.getAmount())));
+            expense.setCategory(selectCategory());
+            expense.setDescription(Prompt.inputString(String.format("설명(%s): ", expense.getDescription())));
+            System.out.println("지출이 변경되었습니다.");
+        } else {
+            System.out.println("유효하지 않은 번호입니다.");
+        }
+    }
+
+    private void deleteExpense() {
+        int index = Prompt.inputInt("삭제할 지출 번호: ");
+        if (index >= 0 && index < accountBook.getExpenses().size()) {
+            accountBook.getExpenses().remove(index);
+            System.out.println("지출이 삭제되었습니다.");
+        } else {
+            System.out.println("유효하지 않은 번호입니다.");
+        }
+    }
+
     private Expense.Category selectCategory() {
-        System.out.println("용도 선택:");
         System.out.println("1. 주거");
         System.out.println("2. 통신");
         System.out.println("3. 교통");
@@ -49,71 +92,23 @@ public class ExpenseCommand {
         System.out.println("5. 식비");
         System.out.println("6. 취미");
 
-        int categoryChoice = Prompt.inputInt("옵션을 선택하세요: ");
+        int categoryChoice = Prompt.inputInt("카테고리를 선택하세요: ");
         switch (categoryChoice) {
-            case 1: return Expense.Category.HOUSING;
-            case 2: return Expense.Category.COMMUNICATION;
-            case 3: return Expense.Category.TRANSPORTATION;
-            case 4: return Expense.Category.FINANCE;
-            case 5: return Expense.Category.FOOD;
-            case 6: return Expense.Category.HOBBY;
-            default: throw new IllegalArgumentException("유효한 선택이 아닙니다.");
+            case 1:
+                return Expense.Category.HOUSING;
+            case 2:
+                return Expense.Category.COMMUNICATION;
+            case 3:
+                return Expense.Category.TRANSPORTATION;
+            case 4:
+                return Expense.Category.FINANCE;
+            case 5:
+                return Expense.Category.FOOD;
+            case 6:
+                return Expense.Category.HOBBY;
+            default:
+                System.out.println("유효한 선택이 아닙니다.");
+                return null;
         }
-    }
-
-    public void listExpenses() {
-        for (Expense expense : expenseList) {
-            System.out.printf("%s - %,d원 - %s - %s\n",
-                    expense.getDate(),
-                    expense.getAmount(),
-                    expense.getDescription(),
-                    expense.getCategory());
-        }
-    }
-
-    public void viewExpense() {
-        int index = Prompt.inputInt("조회할 지출 번호: ");
-        if (index < 0 || index >= expenseList.size()) {
-            System.out.println("유효한 지출 번호가 아닙니다.");
-            return;
-        }
-
-        Expense expense = expenseList.get(index);
-        System.out.printf("날짜: %s\n", expense.getDate());
-        System.out.printf("금액: %,d원\n", expense.getAmount());
-        System.out.printf("설명: %s\n", expense.getDescription());
-        System.out.printf("카테고리: %s\n", expense.getCategory());
-    }
-
-    public void updateExpense() {
-        int index = Prompt.inputInt("변경할 지출 번호: ");
-        if (index < 0 || index >= expenseList.size()) {
-            System.out.println("유효한 지출 번호가 아닙니다.");
-            return;
-        }
-
-        Expense expense = expenseList.get(index);
-        LocalDate date = Prompt.inputDate(String.format("날짜(%s): ", expense.getDate()));
-        long amount = Prompt.inputLong(String.format("금액(%,d원): ", expense.getAmount()));
-        String description = Prompt.inputString(String.format("설명(%s): ", expense.getDescription()));
-        Expense.Category category = selectCategory();
-
-        expense.setDate(date);
-        expense.setAmount(amount);
-        expense.setDescription(description);
-        expense.setCategory(category);
-
-        System.out.println("지출이 변경되었습니다.");
-    }
-
-    public void deleteExpense() {
-        int index = Prompt.inputInt("삭제할 지출 번호: ");
-        if (index < 0 || index >= expenseList.size()) {
-            System.out.println("유효한 지출 번호가 아닙니다.");
-            return;
-        }
-
-        expenseList.remove(index);
-        System.out.println("지출이 삭제되었습니다.");
     }
 }

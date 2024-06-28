@@ -1,19 +1,22 @@
 package bitcamp.project1;
 
+import bitcamp.project1.command.AccountBookCommand;
 import bitcamp.project1.command.ExpenseCommand;
 import bitcamp.project1.command.IncomeCommand;
 import bitcamp.project1.util.Prompt;
 
 public class App {
 
-    String[] mainMenus = {"소득", "지출", "종료"};
+    String[] mainMenus = {"소득", "지출", "지출 관리", "거래 내역 조회", "종료"};
     String[][] subMenus = {
             {"등록", "목록", "조회", "변경", "삭제"},
-            {"등록", "목록", "조회", "변경", "삭제"}
+            {"등록", "목록", "조회", "변경", "삭제"},
+            {"용도별 조회", "일별 조회", "월별 조회", "연도별 조회"}
     };
 
     IncomeCommand incomeCommand = new IncomeCommand();
     ExpenseCommand expenseCommand = new ExpenseCommand();
+    AccountBookCommand accountBookCommand = new AccountBookCommand();
 
     public static void main(String[] args) {
         new App().execute();
@@ -24,12 +27,12 @@ public class App {
 
         while (true) {
             try {
-                String command = Prompt.input("메인>");
+                String command = Prompt.inputString("메인> ");
                 if (command.equals("menu")) {
                     printMenu();
                 } else {
                     int menuNo = Integer.parseInt(command);
-                    if (menuNo == 3) {
+                    if (menuNo == 5) {
                         break;
                     }
                     String menuTitle = getMenuTitle(menuNo, mainMenus);
@@ -76,7 +79,7 @@ public class App {
     void processMenu(String menuTitle, String[] menus) {
         printSubMenu(menuTitle, menus);
         while (true) {
-            String command = Prompt.input(String.format("메인/%s>", menuTitle));
+            String command = Prompt.inputString(String.format("메인/%s> ", menuTitle));
             if (command.equals("menu")) {
                 printSubMenu(menuTitle, menus);
                 continue;
@@ -97,6 +100,9 @@ public class App {
                         case "지출":
                             expenseCommand.executeExpenseCommand(subMenuTitle);
                             break;
+                        case "지출 관리":
+                            accountBookCommand.executeAccountBookCommand(subMenuTitle);
+                            break;
                         default:
                             System.out.printf("%s 메뉴의 명령을 처리할 수 없습니다.\n", menuTitle);
                     }
@@ -106,8 +112,4 @@ public class App {
             }
         }
     }
-
-
-
-
 }
