@@ -4,24 +4,31 @@ import bitcamp.project1.command.AccountBookCommand;
 import bitcamp.project1.command.ExpenseCommand;
 import bitcamp.project1.command.IncomeCommand;
 import bitcamp.project1.util.Prompt;
+import bitcamp.project1.vo.AccountBook;
 
 public class App {
 
+    // 메인 메뉴와 서브 메뉴 정의
     String[] mainMenus = {"소득", "지출", "지출 관리", "거래 내역 조회", "종료"};
     String[][] subMenus = {
             {"등록", "목록", "변경", "삭제"},
             {"등록", "목록", "변경", "삭제"},
-            {"용도별 조회", "일별 조회", "월별 조회", "연도별 조회"}
+            {"용도별 조회", "일별 조회", "월별 조회", "연도별 조회"},
+            {"최근 1개월 거래 내역 조회"} // 거래 내역 조회 메뉴 추가
     };
 
-    IncomeCommand incomeCommand = new IncomeCommand();
-    ExpenseCommand expenseCommand = new ExpenseCommand();
-    AccountBookCommand accountBookCommand = new AccountBookCommand();
+    AccountBook accountBook = new AccountBook();
+    IncomeCommand incomeCommand = new IncomeCommand(accountBook);
+    ExpenseCommand expenseCommand = new ExpenseCommand(accountBook);
+    AccountBookCommand accountBookCommand = new AccountBookCommand(accountBook);
 
     public static void main(String[] args) {
         new App().execute();
     }
 
+    /**
+     * 메인 메뉴를 출력하고 사용자 입력을 받아 해당 명령을 처리한다.
+     */
     void execute() {
         printMenu();
 
@@ -51,6 +58,9 @@ public class App {
         Prompt.close();
     }
 
+    /**
+     * 메인 메뉴를 출력한다.
+     */
     void printMenu() {
         System.out.println("---------------");
         System.out.println("[가계부]");
@@ -60,6 +70,12 @@ public class App {
         System.out.println("---------------");
     }
 
+    /**
+     * 서브 메뉴를 출력한다.
+     *
+     * @param menuTitle 상위 메뉴 타이틀
+     * @param menus     서브 메뉴 배열
+     */
     void printSubMenu(String menuTitle, String[] menus) {
         System.out.printf("[%s]\n", menuTitle);
         for (int i = 0; i < menus.length; i++) {
@@ -68,14 +84,34 @@ public class App {
         System.out.println("9. 이전");
     }
 
+    /**
+     * 메뉴 번호가 유효한지 확인한다.
+     *
+     * @param menuNo 메뉴 번호
+     * @param menus  메뉴 배열
+     * @return 유효한 경우 true, 그렇지 않은 경우 false
+     */
     boolean isValidateMenu(int menuNo, String[] menus) {
         return menuNo >= 1 && menuNo <= menus.length;
     }
 
+    /**
+     * 메뉴 번호에 해당하는 메뉴 타이틀을 반환한다.
+     *
+     * @param menuNo 메뉴 번호
+     * @param menus  메뉴 배열
+     * @return 메뉴 타이틀
+     */
     String getMenuTitle(int menuNo, String[] menus) {
         return isValidateMenu(menuNo, menus) ? menus[menuNo - 1] : null;
     }
 
+    /**
+     * 서브 메뉴를 처리한다.
+     *
+     * @param menuTitle 상위 메뉴 타이틀
+     * @param menus     서브 메뉴 배열
+     */
     void processMenu(String menuTitle, String[] menus) {
         printSubMenu(menuTitle, menus);
         while (true) {
@@ -101,6 +137,9 @@ public class App {
                             expenseCommand.executeExpenseCommand(subMenuTitle);
                             break;
                         case "지출 관리":
+                            accountBookCommand.executeAccountBookCommand(subMenuTitle);
+                            break;
+                        case "거래 내역 조회":
                             accountBookCommand.executeAccountBookCommand(subMenuTitle);
                             break;
                         default:

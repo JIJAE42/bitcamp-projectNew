@@ -6,8 +6,17 @@ import bitcamp.project1.util.Prompt;
 import java.time.LocalDate;
 
 public class ExpenseCommand {
-    private AccountBook accountBook = new AccountBook();
+    private AccountBook accountBook;
 
+    public ExpenseCommand(AccountBook accountBook) {
+        this.accountBook = accountBook;
+    }
+
+    /**
+     * 지출 관련 서브 메뉴 타이틀에 따라 해당 기능을 실행한다.
+     *
+     * @param subMenuTitle 서브 메뉴 타이틀
+     */
     public void executeExpenseCommand(String subMenuTitle) {
         switch (subMenuTitle) {
             case "등록":
@@ -27,6 +36,9 @@ public class ExpenseCommand {
         }
     }
 
+    /**
+     * 새로운 지출을 등록한다.
+     */
     private void addExpense() {
         Expense expense = new Expense();
         expense.setDate(LocalDate.parse(Prompt.inputString("날짜 (YYYY-MM-DD): ")));
@@ -37,6 +49,9 @@ public class ExpenseCommand {
         System.out.println("지출이 등록되었습니다.");
     }
 
+    /**
+     * 등록된 지출 목록을 출력한다.
+     */
     private void listExpenses() {
         System.out.println("번호, 날짜, 금액, 분류, 설명");
         for (int i = 0; i < accountBook.getExpenses().size(); i++) {
@@ -46,8 +61,11 @@ public class ExpenseCommand {
         }
     }
 
+    /**
+     * 선택한 지출을 변경한다.
+     */
     private void updateExpense() {
-        int index = Prompt.inputInt("변경할 지출 번호: ") - 1 ;
+        int index = Prompt.inputInt("변경할 지출 번호: ") - 1;
         if (index >= 0 && index < accountBook.getExpenses().size()) {
             Expense expense = accountBook.getExpenses().get(index);
             expense.setDate(LocalDate.parse(Prompt.inputString(String.format("날짜(%s): ", expense.getDate()))));
@@ -60,8 +78,11 @@ public class ExpenseCommand {
         }
     }
 
+    /**
+     * 선택한 지출을 삭제한다.
+     */
     private void deleteExpense() {
-        int index = Prompt.inputInt("삭제할 지출 번호: ") - 1 ;
+        int index = Prompt.inputInt("삭제할 지출 번호: ") - 1;
         if (index >= 0 && index < accountBook.getExpenses().size()) {
             accountBook.getExpenses().remove(index);
             System.out.println("지출이 삭제되었습니다.");
@@ -70,6 +91,11 @@ public class ExpenseCommand {
         }
     }
 
+    /**
+     * 사용자가 선택한 지출 카테고리를 반환한다.
+     *
+     * @return 선택된 카테고리, 유효하지 않은 경우 null
+     */
     private Expense.Category selectCategory() {
         System.out.println("1. 주거");
         System.out.println("2. 통신");
