@@ -37,7 +37,7 @@ public class Prompt {
             try {
                 return LocalDate.parse(inputString(title));
             } catch (DateTimeParseException e) {
-                System.out.println("유효한 날짜 형식이 아닙니다. 다시 입력하세요 (YYYY-MM-DD).");
+                System.out.println("날짜 유형으로 입력해주세요");
             }
         }
     }

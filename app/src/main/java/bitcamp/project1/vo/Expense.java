@@ -4,11 +4,13 @@ import java.time.LocalDate;
 
 public class Expense {
     public enum Category { 주거, 통신, 교통, 금융, 식비, 취미 }
+    public enum Type { CASH, CARD }
 
     private LocalDate date;
     private int amount;
     private Category category;
     private String description;
+    private Type type;
 
     public LocalDate getDate() {
         return date;
@@ -40,5 +42,13 @@ public class Expense {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 }

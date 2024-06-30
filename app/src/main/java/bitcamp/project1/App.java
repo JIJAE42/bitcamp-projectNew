@@ -5,16 +5,21 @@ import bitcamp.project1.command.ExpenseCommand;
 import bitcamp.project1.command.IncomeCommand;
 import bitcamp.project1.util.Prompt;
 import bitcamp.project1.vo.AccountBook;
+import bitcamp.project1.vo.Expense;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class App {
 
-    // 메인 메뉴와 서브 메뉴 정의
-    String[] mainMenus = {"소득", "지출", "지출 관리", "거래 내역 조회", "종료"};
+    String[] mainMenus = {"수입", "지출", "지출 관리", "거래 내역 조회", "종료"};
     String[][] subMenus = {
             {"등록", "목록", "변경", "삭제"},
             {"등록", "목록", "변경", "삭제"},
-            {"용도별 조회", "일별 조회", "월별 조회", "연도별 조회"},
-            {"최근 1개월 거래 내역 조회"} // 거래 내역 조회 메뉴 추가
+            {"용도별 조회", "일별 조회", "월별 조회", "연도별 조회", "날짜 지정 조회"},
+            {"최근 1개월 거래 내역 조회"}
     };
 
     AccountBook accountBook = new AccountBook();
@@ -26,9 +31,6 @@ public class App {
         new App().execute();
     }
 
-    /**
-     * 메인 메뉴를 출력하고 사용자 입력을 받아 해당 명령을 처리한다.
-     */
     void execute() {
         printMenu();
 
@@ -58,24 +60,22 @@ public class App {
         Prompt.close();
     }
 
-    /**
-     * 메인 메뉴를 출력한다.
-     */
     void printMenu() {
         System.out.println("---------------");
         System.out.println("[가계부]");
+        System.out.println();
+        printCurrentMonthStatus();
+        System.out.println("---------------");
         for (int i = 0; i < mainMenus.length; i++) {
-            System.out.printf("%d. %s\n", (i + 1), mainMenus[i]);
+            if (i == mainMenus.length - 1) {
+                System.out.printf("\033[31m%d. %s\033[0m\n", (i + 1), mainMenus[i]);
+            } else {
+                System.out.printf("%d. %s\n", (i + 1), mainMenus[i]);
+            }
         }
         System.out.println("---------------");
     }
 
-    /**
-     * 서브 메뉴를 출력한다.
-     *
-     * @param menuTitle 상위 메뉴 타이틀
-     * @param menus     서브 메뉴 배열
-     */
     void printSubMenu(String menuTitle, String[] menus) {
         System.out.printf("[%s]\n", menuTitle);
         for (int i = 0; i < menus.length; i++) {
@@ -84,34 +84,14 @@ public class App {
         System.out.println("9. 이전");
     }
 
-    /**
-     * 메뉴 번호가 유효한지 확인한다.
-     *
-     * @param menuNo 메뉴 번호
-     * @param menus  메뉴 배열
-     * @return 유효한 경우 true, 그렇지 않은 경우 false
-     */
     boolean isValidateMenu(int menuNo, String[] menus) {
         return menuNo >= 1 && menuNo <= menus.length;
     }
 
-    /**
-     * 메뉴 번호에 해당하는 메뉴 타이틀을 반환한다.
-     *
-     * @param menuNo 메뉴 번호
-     * @param menus  메뉴 배열
-     * @return 메뉴 타이틀
-     */
     String getMenuTitle(int menuNo, String[] menus) {
         return isValidateMenu(menuNo, menus) ? menus[menuNo - 1] : null;
     }
 
-    /**
-     * 서브 메뉴를 처리한다.
-     *
-     * @param menuTitle 상위 메뉴 타이틀
-     * @param menus     서브 메뉴 배열
-     */
     void processMenu(String menuTitle, String[] menus) {
         printSubMenu(menuTitle, menus);
         while (true) {
@@ -130,7 +110,7 @@ public class App {
                     System.out.println("유효한 메뉴 번호가 아닙니다.");
                 } else {
                     switch (menuTitle) {
-                        case "소득":
+                        case "수입":
                             incomeCommand.executeIncomeCommand(subMenuTitle);
                             break;
                         case "지출":
@@ -150,5 +130,55 @@ public class App {
                 System.out.println("숫자로 메뉴 번호를 입력하세요.");
             }
         }
+    }
+
+    void printCurrentMonthStatus() {
+        LocalDate now = LocalDate.now();
+        int totalBalance = accountBook.getBalance();
+        int currentMonthIncome = accountBook.getMonthlyIncome(now);
+        int previousMonthIncome = accountBook.getPreviousMonthIncome(now);
+        double incomeIncreaseRate = (previousMonthIncome == 0) ? 0 : ((currentMonthIncome - previousMonthIncome) * 100.0 / previousMonthIncome);
+        int currentMonthExpenses = accountBook.getMonthlyExpenses(now);
+        int previousMonthExpenses = accountBook.getPreviousMonthExpenses(now);
+        int cashExpenses = accountBook.getCashExpenses();
+        int cardExpenses = accountBook.getCardExpenses();
+
+        Expense.Category highestCategory = getHighestExpenseCategory(now);
+
+        System.out.println("[이번 달 가계 현황]");
+        System.out.printf("총 잔액: %,d원\n", totalBalance);
+        System.out.println();
+        System.out.println("\033[31m수입\033[0m - ");
+        System.out.printf("\033[31m이달의 수입: %,d원\033[0m\n", currentMonthIncome);
+        System.out.printf("\033[31m저번 달 수입: %,d원\033[0m\n", previousMonthIncome);
+        String increaseRateColor = incomeIncreaseRate >= 0 ? "\033[31m" : "\033[34m";
+        System.out.printf("%s전월 비교 증가율: %.2f%%\033[0m\n", increaseRateColor, incomeIncreaseRate);
+        System.out.println();
+        System.out.println("\033[34m지출\033[0m - ");
+        System.out.printf("\033[34m현금 지출: %,d원\033[0m\n", cashExpenses);
+        System.out.printf("\033[34m카드 지출: %,d원\033[0m\n", cardExpenses);
+        System.out.println();
+        System.out.printf("\033[34m저번 달 보다 %,d원 %s 지출했어요!\033[0m\n", Math.abs(currentMonthExpenses - previousMonthExpenses),
+                currentMonthExpenses > previousMonthExpenses ? "더" : "덜");
+        if (highestCategory != null) {
+            int highestCategoryAmount = accountBook.getExpenses().stream()
+                    .filter(expense -> expense.getCategory() == highestCategory &&
+                            expense.getDate().getYear() == now.getYear() &&
+                            expense.getDate().getMonth() == now.getMonth())
+                    .mapToInt(Expense::getAmount).sum();
+            System.out.printf("\033[34m\"%s\"에 %,d원으로 가장 많이 지출했어요!\033[0m\n", highestCategory, highestCategoryAmount);
+        }
+    }
+
+    private Expense.Category getHighestExpenseCategory(LocalDate now) {
+        Map<Expense.Category, Integer> expenseCategoryTotals = accountBook.getExpenses().stream()
+                .filter(expense -> expense.getDate().getYear() == now.getYear() &&
+                        expense.getDate().getMonth() == now.getMonth())
+                .collect(Collectors.groupingBy(Expense::getCategory, Collectors.summingInt(Expense::getAmount)));
+
+        return expenseCategoryTotals.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
     }
 }

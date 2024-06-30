@@ -3,10 +3,13 @@ package bitcamp.project1.vo;
 import java.time.LocalDate;
 
 public class Income {
+    public enum Type { CASH, CARD }
+
     private LocalDate date;
     private int amount;
     private String source;
     private String description;
+    private Type type;
 
     public LocalDate getDate() {
         return date;
@@ -38,5 +41,13 @@ public class Income {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 }

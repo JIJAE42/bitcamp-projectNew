@@ -4,6 +4,7 @@ import bitcamp.project1.vo.AccountBook;
 import bitcamp.project1.vo.Expense;
 import bitcamp.project1.util.Prompt;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class ExpenseCommand {
     private AccountBook accountBook;
@@ -12,11 +13,6 @@ public class ExpenseCommand {
         this.accountBook = accountBook;
     }
 
-    /**
-     * 지출 관련 서브 메뉴 타이틀에 따라 해당 기능을 실행한다.
-     *
-     * @param subMenuTitle 서브 메뉴 타이틀
-     */
     public void executeExpenseCommand(String subMenuTitle) {
         switch (subMenuTitle) {
             case "등록":
@@ -36,66 +32,68 @@ public class ExpenseCommand {
         }
     }
 
-    /**
-     * 새로운 지출을 등록한다.
-     */
     private void addExpense() {
         Expense expense = new Expense();
-        expense.setDate(LocalDate.parse(Prompt.inputString("날짜 (YYYY-MM-DD): ")));
+        try {
+            expense.setDate(LocalDate.parse(Prompt.inputString("날짜 (YYYY-MM-DD): ")));
+        } catch (DateTimeParseException e) {
+            System.out.println("날짜 유형으로 입력해주세요");
+            return;
+        }
         expense.setAmount(Prompt.inputInt("금액: "));
         expense.setCategory(selectCategory());
         expense.setDescription(Prompt.inputString("설명: "));
+        expense.setType(selectType());
         accountBook.getExpenses().add(expense);
+        accountBook.addExpense(expense.getAmount());
         System.out.println("지출이 등록되었습니다.");
+        System.out.printf("현재 잔액: %,d원\n", accountBook.getBalance());
     }
 
-    /**
-     * 등록된 지출 목록을 출력한다.
-     */
     private void listExpenses() {
-        System.out.println("번호, 날짜, 금액, 분류, 설명");
+        System.out.println("번호, 날짜, 금액, 분류, 설명, 유형");
         for (int i = 0; i < accountBook.getExpenses().size(); i++) {
             Expense expense = accountBook.getExpenses().get(i);
-            System.out.printf("%d. %s, %,d원, %s, %s\n",
-                    i + 1, expense.getDate(), expense.getAmount(), expense.getCategory(), expense.getDescription());
+            System.out.printf("%d. %s, \033[34m%,d원\033[0m, %s, %s, %s\n",
+                    i + 1, expense.getDate(), expense.getAmount(), expense.getCategory(), expense.getDescription(), expense.getType());
         }
     }
 
-    /**
-     * 선택한 지출을 변경한다.
-     */
     private void updateExpense() {
         int index = Prompt.inputInt("변경할 지출 번호: ") - 1;
         if (index >= 0 && index < accountBook.getExpenses().size()) {
             Expense expense = accountBook.getExpenses().get(index);
-            expense.setDate(LocalDate.parse(Prompt.inputString(String.format("날짜(%s): ", expense.getDate()))));
+            int oldAmount = expense.getAmount();
+            try {
+                expense.setDate(LocalDate.parse(Prompt.inputString(String.format("날짜(%s): ", expense.getDate()))));
+            } catch (DateTimeParseException e) {
+                System.out.println("날짜 유형으로 입력해주세요");
+                return;
+            }
             expense.setAmount(Prompt.inputInt(String.format("금액(%d): ", expense.getAmount())));
             expense.setCategory(selectCategory());
             expense.setDescription(Prompt.inputString(String.format("설명(%s): ", expense.getDescription())));
+            expense.setType(selectType());
+            accountBook.addExpense(expense.getAmount() - oldAmount);
             System.out.println("지출이 변경되었습니다.");
+            System.out.printf("현재 잔액: %,d원\n", accountBook.getBalance());
         } else {
             System.out.println("유효하지 않은 번호입니다.");
         }
     }
 
-    /**
-     * 선택한 지출을 삭제한다.
-     */
     private void deleteExpense() {
         int index = Prompt.inputInt("삭제할 지출 번호: ") - 1;
         if (index >= 0 && index < accountBook.getExpenses().size()) {
-            accountBook.getExpenses().remove(index);
+            Expense expense = accountBook.getExpenses().remove(index);
+            accountBook.addExpense(-expense.getAmount());
             System.out.println("지출이 삭제되었습니다.");
+            System.out.printf("현재 잔액: %,d원\n", accountBook.getBalance());
         } else {
             System.out.println("유효하지 않은 번호입니다.");
         }
     }
 
-    /**
-     * 사용자가 선택한 지출 카테고리를 반환한다.
-     *
-     * @return 선택된 카테고리, 유효하지 않은 경우 null
-     */
     private Expense.Category selectCategory() {
         System.out.println("1. 주거");
         System.out.println("2. 통신");
@@ -118,6 +116,22 @@ public class ExpenseCommand {
                 return Expense.Category.식비;
             case 6:
                 return Expense.Category.취미;
+            default:
+                System.out.println("유효한 선택이 아닙니다.");
+                return null;
+        }
+    }
+
+    private Expense.Type selectType() {
+        System.out.println("1. 현금");
+        System.out.println("2. 카드");
+
+        int typeChoice = Prompt.inputInt("유형을 선택하세요: ");
+        switch (typeChoice) {
+            case 1:
+                return Expense.Type.CASH;
+            case 2:
+                return Expense.Type.CARD;
             default:
                 System.out.println("유효한 선택이 아닙니다.");
                 return null;
