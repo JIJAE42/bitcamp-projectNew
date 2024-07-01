@@ -43,7 +43,6 @@ public class IncomeCommand {
         income.setAmount(Prompt.inputInt("금액: "));
         income.setSource(Prompt.inputString("출처: "));
         income.setDescription(Prompt.inputString("설명: "));
-        income.setType(selectType());
         accountBook.getIncomes().add(income);
         accountBook.addIncome(income.getAmount());
         System.out.println("수입이 등록되었습니다.");
@@ -51,11 +50,11 @@ public class IncomeCommand {
     }
 
     private void listIncomes() {
-        System.out.println("번호, 날짜, 금액, 출처, 설명, 유형");
+        System.out.println("번호, 날짜, 금액, 출처, 설명");
         for (int i = 0; i < accountBook.getIncomes().size(); i++) {
             Income income = accountBook.getIncomes().get(i);
-            System.out.printf("%d. %s, \033[31m%,d원\033[0m, %s, %s, %s\n",
-                    i + 1, income.getDate(), income.getAmount(), income.getSource(), income.getDescription(), income.getType());
+            System.out.printf("%d. %s, \033[31m%,d원\033[0m, %s, %s\n",
+                    i + 1, income.getDate(), income.getAmount(), income.getSource(), income.getDescription());
         }
     }
 
@@ -73,7 +72,6 @@ public class IncomeCommand {
             income.setAmount(Prompt.inputInt(String.format("금액(%d): ", income.getAmount())));
             income.setSource(Prompt.inputString(String.format("출처(%s): ", income.getSource())));
             income.setDescription(Prompt.inputString(String.format("설명(%s): ", income.getDescription())));
-            income.setType(selectType());
             accountBook.addIncome(income.getAmount() - oldAmount);
             System.out.println("수입이 변경되었습니다.");
             System.out.printf("현재 잔액: %,d원\n", accountBook.getBalance());
@@ -91,22 +89,6 @@ public class IncomeCommand {
             System.out.printf("현재 잔액: %,d원\n", accountBook.getBalance());
         } else {
             System.out.println("유효하지 않은 번호입니다.");
-        }
-    }
-
-    private Income.Type selectType() {
-        System.out.println("1. 현금");
-        System.out.println("2. 카드");
-
-        int typeChoice = Prompt.inputInt("유형을 선택하세요: ");
-        switch (typeChoice) {
-            case 1:
-                return Income.Type.CASH;
-            case 2:
-                return Income.Type.CARD;
-            default:
-                System.out.println("유효한 선택이 아닙니다.");
-                return null;
         }
     }
 }

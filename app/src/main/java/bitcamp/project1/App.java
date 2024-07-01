@@ -5,10 +5,9 @@ import bitcamp.project1.command.ExpenseCommand;
 import bitcamp.project1.command.IncomeCommand;
 import bitcamp.project1.util.Prompt;
 import bitcamp.project1.vo.AccountBook;
-import bitcamp.project1.vo.Expense;
 
+import bitcamp.project1.vo.Expense;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ public class App {
             {"등록", "목록", "변경", "삭제"},
             {"등록", "목록", "변경", "삭제"},
             {"용도별 조회", "일별 조회", "월별 조회", "연도별 조회", "날짜 지정 조회"},
-            {"최근 1개월 거래 내역 조회"}
+            {"최근 1개월 거래 내역 조회", "자산 그래프"}
     };
 
     AccountBook accountBook = new AccountBook();

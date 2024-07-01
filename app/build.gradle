@@ -23,6 +23,9 @@ dependencies {
 
     // This dependency is used by the application.
     implementation libs.guava
+    implementation 'org.jfree:jfreechart:1.5.3'
+    implementation 'org.jfree:jcommon:1.0.24'
+
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -47,3 +50,5 @@ tasks.named('test') {
 run {
     standardInput = System.in // 기본 값은 empty stream 이다.
 }
+
+

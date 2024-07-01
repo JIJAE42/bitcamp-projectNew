@@ -5,12 +5,22 @@ import bitcamp.project1.vo.Expense;
 import bitcamp.project1.vo.Income;
 import bitcamp.project1.util.Prompt;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.chart.ui.ApplicationFrame;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccountBookCommand {
     private AccountBook accountBook;
@@ -38,6 +48,9 @@ public class AccountBookCommand {
                 break;
             case "최근 1개월 거래 내역 조회":
                 this.recentTransactions();
+                break;
+            case "자산 그래프":
+                this.assetGraph();
                 break;
             default:
                 System.out.printf("%s 명령을 처리할 수 없습니다.\n", subMenuTitle);
@@ -209,6 +222,64 @@ public class AccountBookCommand {
         }
 
         System.out.printf("현재 잔액: %,d원\n", accountBook.getBalance());
+    }
+
+    public void assetGraph() {
+        LocalDate startDate = Prompt.inputDate("시작 날짜 (YYYY-MM-DD): ");
+        LocalDate endDate = Prompt.inputDate("종료 날짜 (YYYY-MM-DD): ");
+        List<LocalDate> dates = startDate.datesUntil(endDate.plusDays(1)).collect(Collectors.toList());
+        List<Integer> balances = new ArrayList<>();
+        int currentBalance = accountBook.getBalance();
+
+        for (LocalDate date : dates) {
+            int dailyIncome = accountBook.getIncomes().stream()
+                    .filter(income -> income.getDate().isEqual(date))
+                    .mapToInt(Income::getAmount).sum();
+            int dailyExpense = accountBook.getExpenses().stream()
+                    .filter(expense -> expense.getDate().isEqual(date))
+                    .mapToInt(Expense::getAmount).sum();
+            currentBalance += dailyIncome - dailyExpense;
+            balances.add(currentBalance);
+        }
+
+        showAssetGraph(dates, balances);
+    }
+
+    private void showAssetGraph(List<LocalDate> dates, List<Integer> balances) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+
+        for (int i = 0; i < dates.size(); i++) {
+            dataset.addValue(balances.get(i), "잔액", dates.get(i).format(formatter));
+        }
+
+        JFreeChart lineChart = ChartFactory.createLineChart(
+                "자산 그래프",
+                "날짜",
+                "잔액",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, true, false);
+
+        ChartPanel chartPanel = new ChartPanel(lineChart);
+        chartPanel.setPreferredSize(new Dimension(800, 600));
+        ApplicationFrame chartFrame = new ApplicationFrame("자산 그래프");
+        chartFrame.setContentPane(chartPanel);
+        chartFrame.pack();
+        centerFrameOnScreen(chartFrame);
+        chartFrame.setVisible(true);
+    }
+
+    private void centerFrameOnScreen(ApplicationFrame frame) {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension frameSize = frame.getSize();
+        if (frameSize.height > screenSize.height) {
+            frameSize.height = screenSize.height;
+        }
+        if (frameSize.width > screenSize.width) {
+            frameSize.width = screenSize.width;
+        }
+        frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
     }
 
     static class Transaction {
